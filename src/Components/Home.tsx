@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled, { StyledComponent } from 'styled-components';
 import uploader from '../axios-uploder';
 import server from '../axios-server';
+import { Message } from './Message';
+
 const Wrapper: StyledComponent<'div', any, {}, never> = styled.div` 
 	display: flex;
 	justify-content: center;
@@ -59,12 +61,14 @@ export const Home: React.FC = (props) => {
 	const [content, setContent] = useState<string>('');
 	const [imageSrc, setImageSrc] = useState<string>('');
 	const [imageLocalSrc, setImageLocalSrc] = useState<string>('');
+	const [message, setMessage] = useState<string>('');
 	useEffect(() => {
 		const cont = localStorage.getItem('content');
 		if (cont) setContent(cont);
 	}, []);
 	return (
 		<Wrapper>
+			{message && <Message content={message} />}
 			<Input
 				type='number'
 				value={lattitude}
@@ -124,7 +128,26 @@ export const Home: React.FC = (props) => {
 							content,
 							imageSrc,
 						});
+						if (response.data.success) {
+							setContent('');
+							setImageLocalSrc('');
+							setImageSrc('');
+							setMessage('Advertisement saved successfully');
+							setTimeout(() => {
+								setMessage('');
+							}, 4000);
+						} else {
+							setMessage(response.data.error);
+							setTimeout(() => {
+								setMessage('');
+							}, 4000);
+						}
 						console.log(response);
+					} else {
+						setMessage('Please fill all the fields');
+						setTimeout(() => {
+							setMessage('');
+						}, 4000);
 					}
 				}}
 			>
