@@ -1,5 +1,5 @@
 import axios from 'axios';
 const instance = axios.create({
-	baseURL: 'http://photu-godaam.herokuapp.com',
+	baseURL: 'https://hilbert-bucket.herokuapp.com/',
 });
 export default instance;
