@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled, { StyledComponent } from 'styled-components';
-import uploader from '../axios-uploder';
 import server from '../axios-server';
 import { Message } from './Message';
+import { uploadImage } from '../utils/uploadImage';
 
 const Wrapper: StyledComponent<'div', any, {}, never> = styled.div` 
 	display: flex;
@@ -70,64 +70,62 @@ export const Home: React.FC = (props) => {
 		<Wrapper>
 			{message && <Message content={message} />}
 			<Input
-				type='number'
+				type="number"
 				value={lattitude}
-				placeholder='Lattitude'
+				placeholder="Lattitude"
 				onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 					setLattitude(+e.target.value);
 				}}
 			/>
 			<Input
-				type='number'
+				type="number"
 				value={longitude}
-				placeholder='Longitude'
+				placeholder="Longitude"
 				onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 					setLongitude(+e.target.value);
 				}}
 			/>
 			<TextArea
 				value={content}
-				placeholder='Enter advertisement content here'
+				placeholder="Enter advertisement content here"
 				onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
 					setContent(e.target.value);
 					localStorage.setItem('content', content);
 				}}
 			/>
 			<Input
-				type='file'
+				type="file"
 				onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
 					const file = e.target.files![0];
 					setImageLocalSrc(URL.createObjectURL(file));
-					const formData = new FormData();
-					formData.append('file', file);
-					const resp = await uploader.post('/', formData, {
-						headers: {
-							enctype: 'multipart/form-data',
-						},
-					});
-					if (!resp.data.success) e.target.value = '';
-					resp.data.success ? setImageSrc(resp.data.url) : setImageSrc('');
+					const url = await uploadImage(file);
+					setImageSrc(url);
 				}}
 			/>
 			{imageLocalSrc && (
 				<img
-					width='400px'
+					width="400px"
 					style={{ margin: '10px' }}
 					src={imageLocalSrc}
-					alt=''
+					alt=""
 				/>
 			)}
 			{imageSrc && <P>File uploaded : {imageSrc}</P>}
 			<Button
-				onClick={async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+				onClick={async (
+					e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+				) => {
 					e.preventDefault();
 					if (lattitude && longitude && content && imageSrc) {
-						const response = await server.post(`/api/advertisements/`, {
-							lattitude,
-							longitude,
-							content,
-							imageSrc,
-						});
+						const response = await server.post(
+							`/api/advertisements/`,
+							{
+								lattitude,
+								longitude,
+								content,
+								imageSrc,
+							}
+						);
 						if (response.data.success) {
 							setContent('');
 							setImageLocalSrc('');
